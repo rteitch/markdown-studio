@@ -1,0 +1,50 @@
+{
+  "name": "markdown-studio-x",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@codemirror/autocomplete": "^6.18.6",
+    "@codemirror/commands": "^6.8.1",
+    "@codemirror/lang-markdown": "^6.3.1",
+    "@codemirror/language": "^6.10.8",
+    "@codemirror/search": "^6.5.10",
+    "@codemirror/state": "^6.5.2",
+    "@codemirror/theme-one-dark": "^6.1.2",
+    "@codemirror/view": "^6.36.5",
+    "@lezer/highlight": "^1.2.3",
+    "@tauri-apps/api": "^2.3.0",
+    "@tauri-apps/plugin-dialog": "^2.2.1",
+    "@tauri-apps/plugin-fs": "^2.2.0",
+    "codemirror": "^6.0.1",
+    "dayjs": "^1.11.13",
+    "graphology": "^0.25.4",
+    "highlight.js": "^11.11.1",
+    "js-yaml": "^4.1.0",
+    "katex": "^0.16.21",
+    "marked": "^15.0.7",
+    "mermaid": "^11.6.0",
+    "nanoid": "^5.1.5",
+    "pinia": "^3.0.2",
+    "sigma": "^3.0.2",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.1"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.5.0",
+    "@types/js-yaml": "^4.0.9",
+    "@types/katex": "^0.16.7",
+    "@types/node": "^22.15.3",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "sass": "^1.87.0",
+    "typescript": "~5.7.2",
+    "vite": "^6.3.5",
+    "vue-tsc": "^2.2.8"
+  }
+}
