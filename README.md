@@ -180,8 +180,8 @@
 
 ```bash
 # Clone repository
-git clone https://github.com/your-username/markdown-studio-x.git
-cd markdown-studio-x
+git clone https://github.com/rteitch/markdown-studio.git
+cd markdown-studio
 
 # Install dependencies
 npm install
@@ -454,10 +454,11 @@ Tersedia sebagai alternatif light theme dengan warna yang lebih terang.
 ### Phase 1 (v1.5)
 - [ ] Advanced AI Workspace (real Ollama/OpenAI integration)
 - [ ] Semantic Search + Vector Embeddings
-- [ ] Real Git integration (libgit2)
-- [ ] Plugin API + Runtime
-- [ ] Mermaid diagram rendering
-- [ ] KaTeX math rendering
+- [ ] Real Git integration (isomorphic-git)
+- [x] Plugin API + Runtime (`src/utils/plugin-api.ts`)
+- [x] Mermaid diagram rendering (20+ diagram types)
+- [x] KaTeX math rendering (block & inline)
+- [x] Advanced Markdown renderer (GFM, frontmatter, callouts, footnotes, wiki links)
 
 ### Phase 2 (v2.0)
 - [ ] Mobile apps (iOS & Android via Flutter)
@@ -480,7 +481,7 @@ Tersedia sebagai alternatif light theme dengan warna yang lebih terang.
 Kontribusi sangat diterima! Berikut cara berkontribusi:
 
 1. **Fork** repository ini
-2. **Clone** fork Anda: `git clone https://github.com/your-username/markdown-studio-x.git`
+2. **Clone** fork Anda: `git clone https://github.com/rteitch/markdown-studio.git`
 3. **Buat branch** baru: `git checkout -b feature/amazing-feature`
 4. **Commit** perubahan: `git commit -m 'feat: add amazing feature'`
 5. **Push** ke branch: `git push origin feature/amazing-feature`
@@ -504,8 +505,8 @@ chore: maintenance tasks
 
 ```bash
 # 1. Clone & install
-git clone https://github.com/your-username/markdown-studio-x.git
-cd markdown-studio-x
+git clone https://github.com/rteitch/markdown-studio.git
+cd markdown-studio
 npm install
 
 # 2. Start development

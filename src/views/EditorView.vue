@@ -4,6 +4,7 @@ import { useEditorStore } from '@/stores/editor'
 import { useUIStore } from '@/stores/ui'
 import MarkdownEditor from '@/components/editor/MarkdownEditor.vue'
 import MarkdownToolbar from '@/components/editor/MarkdownToolbar.vue'
+import { renderMarkdownFull, renderMermaidInHtml, extractMermaidBlocks } from '@/utils/markdown'
 
 const editor = useEditorStore()
 const ui = useUIStore()
@@ -11,107 +12,19 @@ const ui = useUIStore()
 const previewContent = ref('')
 const cmEditorRef = ref<InstanceType<typeof MarkdownEditor> | null>(null)
 
-// Simple markdown to HTML renderer for preview
-function renderMarkdown(md: string): string {
-  let html = md
-
-  // Remove frontmatter
-  html = html.replace(/^---[\s\S]*?---\n*/m, '')
-
-  // Code blocks
-  html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_match, lang, code) => {
-    return `<pre class="code-block"><code class="language-${lang}">${escapeHtml(code.trim())}</code></pre>`
-  })
-
-  // Inline code
-  html = html.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>')
-
-  // Headers
-  html = html.replace(/^######\s+(.+)$/gm, '<h6>$1</h6>')
-  html = html.replace(/^#####\s+(.+)$/gm, '<h5>$1</h5>')
-  html = html.replace(/^####\s+(.+)$/gm, '<h4>$1</h4>')
-  html = html.replace(/^###\s+(.+)$/gm, '<h3>$1</h3>')
-  html = html.replace(/^##\s+(.+)$/gm, '<h2>$1</h2>')
-  html = html.replace(/^#\s+(.+)$/gm, '<h1>$1</h1>')
-
-  // Bold and italic
-  html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
-  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>')
-
-  // Strikethrough
-  html = html.replace(/~~(.+?)~~/g, '<del>$1</del>')
-
-  // Blockquotes
-  html = html.replace(/^>\s+(.+)$/gm, '<blockquote>$1</blockquote>')
-
-  // Horizontal rules
-  html = html.replace(/^---$/gm, '<hr />')
-  html = html.replace(/^\*\*\*$/gm, '<hr />')
-
-  // Task lists
-  html = html.replace(/^- \[x\]\s+(.+)$/gm, '<div class="task-item"><input type="checkbox" checked disabled /><span>$1</span></div>')
-  html = html.replace(/^- \[ \]\s+(.+)$/gm, '<div class="task-item"><input type="checkbox" disabled /><span>$1</span></div>')
-
-  // Unordered lists
-  html = html.replace(/^[-*]\s+(.+)$/gm, '<li>$1</li>')
-  html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
-
-  // Ordered lists
-  html = html.replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>')
-
-  // Links
-  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
-
-  // Wiki links
-  html = html.replace(/\[\[([^\]]+)\]\]/g, '<span class="wiki-link">📎 $1</span>')
-
-  // Images
-  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />')
-
-  // Tables
-  html = html.replace(/^\|(.+)\|$/gm, (_match, content) => {
-    const cells = content.split('|').map((c: string) => c.trim())
-    if (cells.every((c: string) => /^[-:]+$/.test(c))) {
-      return '<!-- table separator -->'
-    }
-    const cellHtml = cells.map((c: string) => `<td>${c}</td>`).join('')
-    return `<tr>${cellHtml}</tr>`
-  })
-  html = html.replace(/((<tr>.*<\/tr>\n?)+)/g, '<table>$1</table>')
-  html = html.replace(/<!-- table separator -->\n?/g, '')
-
-  // Paragraphs
-  html = html.replace(/^(?!<[a-z]|$)(.+)$/gm, '<p>$1</p>')
-
-  // Math blocks (KaTeX)
-  html = html.replace(/\$\$\n?([\s\S]*?)\n?\$\$/g, '<div class="math-block">$1</div>')
-  html = html.replace(/\$(.+?)\$/g, '<span class="math-inline">$1</span>')
-
-  // Mermaid blocks
-  html = html.replace(/```mermaid\n([\s\S]*?)```/g, '<div class="mermaid-block"><pre>$1</pre></div>')
-
-  // Callouts/Admonitions
-  html = html.replace(/>\s*\[!(tip|note|warning|danger|info)\]\s*(.*)\n([\s\S]*?)(?=\n[^>]|\n\n)/g,
-    (_match, type, title, content) => {
-      return `<div class="callout callout-${type}"><div class="callout-title">${title || type}</div><div class="callout-content">${content.trim()}</div></div>`
-    })
-
-  return html
-}
-
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, '&')
-    .replace(/</g, '<')
-    .replace(/>/g, '>')
-    .replace(/"/g, '"')
-    .replace(/'/g, '&#039;')
-}
-
-// Update preview on content change
-watch(() => editor.activeFileContent, (content) => {
-  previewContent.value = renderMarkdown(content)
+// Update preview on content change using advanced renderer
+watch(() => editor.activeFileContent, async (content) => {
+  if (!content) {
+    previewContent.value = ''
+    return
+  }
+  // Use advanced renderer with Mermaid + KaTeX support
+  const mermaidBlocks = extractMermaidBlocks(content)
+  let html = await renderMarkdownFull(content)
+  if (mermaidBlocks.length > 0) {
+    html = await renderMermaidInHtml(html, mermaidBlocks)
+  }
+  previewContent.value = html
 }, { immediate: true })
 
 function handleContentUpdate(content: string) {
